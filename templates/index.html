@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ScamShield AI</title>
+<style>
+body{font-family:Arial; background:#f0f2f5; text-align:center; padding:20px;}
+.box{background:white; padding:30px; border-radius:12px; max-width:650px; margin:auto}
+input{width:90%; padding:14px; border:2px solid #ddd; border-radius:8px; margin:5px}
+button{padding:12px 30px; background:#1877f2; color:white; border:none; margin-top:10px; border-radius:8px; cursor:pointer}
+.result{margin-top:20px; padding:15px; border-radius:8px; text-align:left;}
+.HIGH{background:#ffdddd; border-left:5px solid red;}
+.SUSPICIOUS{background:#fff3cd; border-left:5px solid orange;}
+.LOW{background:#d4edda; border-left:5px solid green;}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>🛡️ ScamShield-AI</h1>
+<p>Post ka URL ya Image Upload karo</p>
+<form method="POST" enctype="multipart/form-data">
+<input type="text" name="url" placeholder="https://example.com">
+<p>OR</p>
+<input type="file" name="image" accept="image/*">
+<br><button type="submit">Check Now</button>
+</form>
+
+{% if result %}
+<div class="result {{ result.level.split(' ')[0] }}">
+<h3>🔴 {{ result.level }} ({{ result.score }}/100)</h3>
+<p><b>Link:</b> {{ result.link }}</p>
+<ul>
+{% for r in result.reasons %}
+<li>{{ r }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+</div>
+</body>
+</html>
