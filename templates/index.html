@@ -1,40 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>ScamShield AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fraud URL Detector - ScamShield</title>
 <style>
-body{font-family:Arial; background:#f0f2f5; text-align:center; padding:20px;}
-.box{background:white; padding:30px; border-radius:12px; max-width:650px; margin:auto}
-input{width:90%; padding:14px; border:2px solid #ddd; border-radius:8px; margin:5px}
-button{padding:12px 30px; background:#1877f2; color:white; border:none; margin-top:10px; border-radius:8px; cursor:pointer}
-.result{margin-top:20px; padding:15px; border-radius:8px; text-align:left;}
-.HIGH{background:#ffdddd; border-left:5px solid red;}
-.SUSPICIOUS{background:#fff3cd; border-left:5px solid orange;}
-.LOW{background:#d4edda; border-left:5px solid green;}
+body{margin:0;font-family:Inter,system-ui;background:#f7f9fc;color:#1a1a1a}
+.topbar{background:white;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb}
+.logo{font-weight:800;font-size:18px;color:#2563eb}
+.container{max-width:1100px;margin:30px auto;display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;padding:0 20px}
+@media(max-width:800px){.container{grid-template-columns:1fr}}
+.card{background:white;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.06);border:1px solid #eef2f7}
+.input{width:100%;padding:14px;border:2px solid #e5e7eb;border-radius:12px;font-size:15px;outline:none}
+.input:focus{border-color:#2563eb}
+.btn{width:100%;margin-top:16px;background:#2563eb;color:white;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer}
+.btn:hover{background:#1d4ed8}
+.risk-circle{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:20px auto;font-weight:800;font-size:32px;color:white}
+.high{background:radial-gradient(circle at 30% 30%, #ff6b6b, #c92a2a)}
+.medium{background:radial-gradient(circle at 30% 30%, #ffd43b, #e67700);color:#000}
+.low{background:radial-gradient(circle at 30% 30%, #69db7c, #2b8a3e)}
+.detail{padding:12px 0;border-bottom:1px solid #f1f5f9;display:flex;gap:10px}
+.badge{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700}
+.bad{background:#ffe0e0;color:#c92a2a}
+.good{background:#d3f9d8;color:#2b8a3e}
+.warn{background:#fff3bf;color:#e67700}
 </style>
 </head>
 <body>
-<div class="box">
-<h1>🛡️ ScamShield-AI</h1>
-<p>Post ka URL ya Image Upload karo</p>
-<form method="POST" enctype="multipart/form-data">
-<input type="text" name="url" placeholder="https://example.com">
-<p>OR</p>
-<input type="file" name="image" accept="image/*">
-<br><button type="submit">Check Now</button>
-</form>
+<div class="topbar">
+<div class="logo">🛡️ ScamShield-AI - Fraud Detector</div>
+<div style="font-size:13px;color:gray">AI Powered • Free • No Login</div>
+</div>
 
-{% if result %}
-<div class="result {{ result.level.split(' ')[0] }}">
-<h3>🔴 {{ result.level }} ({{ result.score }}/100)</h3>
-<p><b>Link:</b> {{ result.link }}</p>
-<ul>
-{% for r in result.reasons %}
-<li>{{ r }}</li>
-{% endfor %}
-</ul>
+<div class="container">
+<div class="card">
+<h3>🔗 Analyze Suspicious URL</h3>
+<p style="color:gray;font-size:14px">Paste the link you received on WhatsApp, SMS or Email</p>
+<input id="url" class="input" placeholder="https://shoop-75%off-urgent-lottery-winner.com">
+<button class="btn" onclick="analyze()">🔍 Analyze Now</button>
+
+<div id="details" style="margin-top:20px"></div>
 </div>
-{% endif %}
+
+<div class="card" style="text-align:center">
+<h3>Risk Assessment</h3>
+<div id="circle" class="risk-circle" style="background:#e9ecef;color:#888">--</div>
+<h2 id="riskText">Ready to Scan</h2>
+<p id="riskDesc" style="color:gray">Left side me URL paste karo</p>
+<div style="margin-top:20px">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:gray"><span>0</span><span>100</span></div>
+<div style="height:8px;background:#e9ecef;border-radius:10px;overflow:hidden"><div id="bar" style="height:100%;width:0%;background:#2563eb;transition:1s"></div></div>
 </div>
+<div id="tips" style="margin-top:20px;text-align:left;background:#f8faff;padding:12px;border-radius:12px;font-size:13px;display:none"></div>
+</div>
+</div>
+
+<script>
+function analyze(){
+let v=document.getElementById('url').value.toLowerCase();
+if(!v){alert('URL to dalo!');return}
+let score=15; let dets=[];
+if(v.includes('shoop')||v.includes('amaz0n')||v.includes('bit.ly')||v.includes('tinyurl')){score+=35; dets.push(['❌ Typosquatting Domain','Fake domain pattern like shoop/bit.ly','bad'])}
+else{dets.push(['✅ Domain Format','Looks like normal domain','good'])}
+if(v.match(/\d{2,3}%\s*off|free|lottery|winner|prize/)){score+=35; dets.push(['❌ Fake Offer / Lottery','75% off, free, lottery jaise words','bad'])}
+if(v.includes('urgent')||v.includes('immediately')){score+=20; dets.push(['❌ Urgency Trick','Urgent action ka pressure','bad'])}
+if(v.includes('@')||v.length>70){score+=10; dets.push(['⚠️ Suspicious Characters','@ ya bahut lamba URL','warn'])}
+if(!v.startsWith('https')){score+=10; dets.push(['⚠️ No HTTPS','https nahi hai','warn'])} else{dets.push(['✅ HTTPS','Secure connection','good'])}
+
+score=Math.min(Math.max(score,20),95);
+let level=score>=60?'HIGH':score>=35?'MEDIUM':'LOW';
+let circ=document.getElementById('circle');
+let bar=document.getElementById('bar');
+let rt=document.getElementById('riskText');
+let rd=document.getElementById('riskDesc');
+
+circ.innerText=score;
+bar.style.width=score+'%';
+if(level=='HIGH'){circ.className='risk-circle high';bar.style.background='#ff4d4d';rt.innerText='HIGH RISK - Khatra Hai!';rd.innerText='Is link pe click mat karo';}
+else if(level=='MEDIUM'){circ.className='risk-circle medium';bar.style.background='#ffbf00';rt.innerText='MEDIUM RISK - Dhyan De';rd.innerText='Verify karke hi open karo';}
+else{circ.className='risk-circle low';bar.style.background='#2b8a3e';rt.innerText='LOW RISK - Safe Hai';rd.innerText='Safe lag raha hai fir bhi careful raho';}
+
+let html=''; dets.forEach(d=>{html+=`<div class='detail'><span class='badge ${d[2]}'>${d[2]=='bad'?'HIGH':d[2]=='warn'?'MEDIUM':'SAFE'}</span><div><b>${d[0]}</b><br><span style='font-size:13px;color:gray'>${d[1]}</span></div></div>`});
+document.getElementById('details').innerHTML=html;
+document.getElementById('tips').style.display='block';
+document.getElementById('tips').innerHTML='💡 <b>Safety Tip:</b> Kabhi bhi anjan link pe OTP/Bank details mat dalo. Official site pe jaake check karo.';
+}
+</script>
 </body>
 </html>
